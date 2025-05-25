@@ -73,7 +73,8 @@ Version: 1.0
         <style>{{ store.custom_css }}</style>
     {% endif %}
 
-    {{ icon_library }}
+    <script defer src="{{ assets_url('assets/common/vendor/fontawesome/5.15.1/js/all.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <script src="{{ assets_url('assets/common/vendor/modernizr/2.7.1/modernizr.min.js') }}"></script>
     <script src="{{ assets_url('assets/common/vendor/jquery/1.11.2/jquery.min.js') }}"></script>
 
@@ -92,59 +93,47 @@ Version: 1.0
     {{ head_content }}
 </head>
 
-<body class="{{ css_class }} {{ store.theme_options.header_position }} {{ store.theme_options.modal_mask_blur != '0' ? 'modal-backdrop-blur' }} {{ store.theme_options.icon_library }}">
+<body class="{{ css_class }} {{ store.theme_options.header_position }} {{ store.theme_options.modal_mask_blur != '0' ? 'modal-backdrop-blur' }}">
 
-    {% if store.notice or apps.google_translate %}
+    {% if store.notice %}
         <div class="store-notice {{ not store.notice ? 'd-md-none' }}">
             {% if store.notice %}
                 <div class="store-notice-text text-center h5">
                     {{ store.notice }}
                 </div>
             {% endif %}
-            {% if apps.google_translate %}
-                {{ generic_macros.google_translate(apps.google_translate, 'd-md-none') }}
-            {% endif %}
         </div>
     {% endif %}
 
     <div id="nav-spacer" class="hidden"></div>
 
-    <header class="header {{ store.theme_options.header_position }}">
-        <div class="{{ layout_container }} d-flex align-items-center">
+    <header class="header {{ store.theme_options.header_position }} container-fluid">
+			
             {% if store.logo %}
-                <a href="{{ site_url() }}" class="logo d-none d-lg-block"><img src="{{ store.logo }}" alt="{{ store.name|e_attr }}" title="{{ store.name|e_attr }}" height="60"></a>
+                <a href="{{ site_url() }}" class="logo"><img src="{{ store.logo }}" alt="{{ store.name|e_attr }}" title="{{ store.name|e_attr }}" height="60"></a>
             {% else %}
-                <h1 class="logo d-none d-lg-block"><a href="{{ site_url() }}">{{ store.name }}</a></h1>
+                <h1 class="logo"><a href="{{ site_url() }}">{{ store.name }}</a></h1>
             {% endif %}
 
-            <div class="trigger-wrapper d-flex">
-                <button class="trigger-header-menu"></button>
-            </div>
-
-            {% if store.logo %}
-                <a href="{{ site_url() }}" class="logo d-lg-none"><img src="{{ store.logo }}" alt="{{ store.name|e_attr }}" title="{{ store.name|e_attr }}" height="60"></a>
-            {% else %}
-                <h1 class="logo d-lg-none"><a href="{{ site_url() }}">{{ store.name }}</a></h1>
-            {% endif %}
-
-            <div class="header-control">
-                {% if store.theme_options.show_search %}
-                    <div class="header-item d-none d-sm-none d-md-block">
-                        <div class="search {{ show_search_suggestions }}">
-                            {{ form_open(site_url('search'), { 'method' : 'get', 'role' : 'search' }) }}
-                                <div class="input-wrapper">
-                                    <input type="text" name="q" value="{{ search ? search.query }}" placeholder="{{ 'lang.storefront.layout.header.search'|t }}" class="search-input" required="">
-                                </div>
-                                <button type="submit" class="search-button">
-                                    {{ icons('search') }}
-                                </button>
-                            {{ form_close() }}
-                        </div>
+            {% if store.theme_options.show_search %}
+                <div class="search-wrapper">
+                    <div class="search show {{ show_search_suggestions }}">
+                        {{ form_open(site_url('search'), { 'method' : 'get', 'role' : 'search' }) }}
+                            <div class="input-wrapper">
+                                <input type="text" name="q" value="{{ search ? search.query }}" placeholder="{{ 'lang.storefront.layout.header.search'|t }}" class="search-input" required="">
+                            </div>
+                            <button type="submit" class="search-button">
+                                <i data-feather="search"></i>
+                            </button>
+                        {{ form_close() }}
                     </div>
-                {% endif %}
-                <div class="header-item ">
+                </div>
+            {% endif %}
+
+            <ul class="header-items">
+                <li class="header-item ">
                     <a href="{{ site_url('cart') }}" class="link-cart header-link {{ cart.items ? 'has-products' }}">
-                        {{ icons('shopping-cart') }}
+                        <i data-feather="shopping-cart"></i>
                     </a>
                     {% if cart.items %}
                         <div class="cart-body">
@@ -171,7 +160,7 @@ Version: 1.0
                                             <div class="price">{{ item.subtotal | money_with_sign }}</div>
                                         </div>
                                         <a href="{{ item.remove_link }}" class="remove btn-default {{ store.theme_options.button_default_shadow }}">
-                                            {{ icons('trash-alt') }}
+                                            <i data-feather="trash-2"></i>
                                         </a>
                                     </div>
                                 {% endfor %}
@@ -188,37 +177,43 @@ Version: 1.0
                             </div>
                         </div>
                     {% endif %}
-                </div>
+                </li>
                 {% if store.settings.cart.users_registration != 'disabled' %}
-                    <div class="header-item d-none d-sm-none d-md-block">
+                    <li class="header-item d-none d-sm-none d-md-block">
                         {% if user.is_logged_in %}
                             <div class="user-loggedin">
                                 <a href="{{ site_url('account') }}" class="link-account header-link">
-                                    {{ icons('user') }}
+                                    <i data-feather="user"></i>
                                     <span class="user-name">{{ 'lang.storefront.layout.greetings'|t }} <strong>{{ user.name|first_word }}</strong></span>
                                 </a>
                             </div>
                             <div class="user-body">
                                 <div class="dropdown-menu dropdown-user-actions dropdown-menu-right well-featured {{ store.theme_options.well_featured_shadow }}">
-                                    <li class="{{ current_page == 'account-orders' ? 'active' }} dropdown-item"><a href="{{ site_url('account/orders')}}" class="link-inherit">{{ icons('shopping-bag') }} {{ 'lang.storefront.layout.orders.title'|t }}</a></li>
-                                    <li class="{{ current_page == 'account-profile' ? 'active' }} dropdown-item"><a href="{{ site_url('account/profile')}}" class="link-inherit">{{ icons('user') }} {{ 'lang.storefront.layout.client.title'|t }}</a></li>
-                                    <li class="{{ current_page == 'account-wishlist' ? 'active' }} dropdown-item"><a href="{{ site_url('account/wishlist')}}" class="link-inherit">{{ icons('heart') }} {{ 'lang.storefront.layout.wishlist.title'|t }}</a></li>
-                                    <li class="dropdown-item"><a href="{{ site_url('account/logout')}}" class="link-inherit">{{ icons('log-out') }} {{ 'lang.storefront.layout.logout.title'|t }}</a></li>
+                                    <li class="{{ current_page == 'account-orders' ? 'active' }} dropdown-item"><a href="{{ site_url('account/orders')}}" class="link-inherit"><i data-feather="shopping-bag"></i> {{ 'lang.storefront.layout.orders.title'|t }}</a></li>
+                                    <li class="{{ current_page == 'account-profile' ? 'active' }} dropdown-item"><a href="{{ site_url('account/profile')}}" class="link-inherit"><i data-feather="user"></i> {{ 'lang.storefront.layout.client.title'|t }}</a></li>
+                                    <li class="{{ current_page == 'account-wishlist' ? 'active' }} dropdown-item"><a href="{{ site_url('account/wishlist')}}" class="link-inherit"><i data-feather="heart"></i> {{ 'lang.storefront.layout.wishlist.title'|t }}</a></li>
+                                    <li class="dropdown-item"><a href="{{ site_url('account/logout')}}" class="link-inherit"><i data-feather="log-out"></i> {{ 'lang.storefront.layout.logout.title'|t }}</a></li>
                                 </div>
                             </div>
                         {% else %}
                             <a href="{{ site_url('signin') }}" class="header-link">
-                                {{ icons('user') }}
+                                <i data-feather="user"></i>
                             </a>
                         {% endif %}
-                    </div>
+                    </li>
                 {% endif %}
-                {% if apps.google_translate %}
-                    {{ generic_macros.google_translate(apps.google_translate, 'header-item d-none d-md-block') }}
+            </div>
+			<li class="header-item">
+			    {% if apps.google_translate %}
+                    {{ generic_macros.google_translate(apps.google_translate, 'header-item') }}
                 {% endif %}
-            </div> <!-- end header-control -->
-
-        </div> <!-- end container-fluid -->
+			</li>
+			<li class="header-item">
+				<div class="trigger-wrapper">
+            		<button class="trigger-header-menu">Menu</button>
+            	</div>
+			</li>
+        </ul>
 
         <div class="header-menu">
             <div class="{{ layout_container }}">
@@ -228,7 +223,7 @@ Version: 1.0
                             <div class="input-wrapper">
                                 <input type="text" name="q" value="{{ search ? search.query }}" placeholder="{{ 'lang.storefront.layout.header.search'|t }}" class="search-input">
                                 <button class="search-button" type="submit">
-                                    {{ icons('search') }}
+                                    <i data-feather="search"></i>
                                 </button>
                             </div>
                         </div>
@@ -251,15 +246,15 @@ Version: 1.0
                                 <div class="menu-item menu-{{ products_category.handle }} {% if (category.id == products_category_id or category.parent == products_category_id) %} active {% endif %}">
                                     {% if products_category.children %}
                                         <div class="menu-head js-menu-head">{{ products_category.title }}
-                                            {{ icons('angle-right') }}
+                                            <i data-feather="chevron-right"></i>
                                         </div>
 
                                         <div class="menu-body">
                                             <button class="menu-close js-menu-close">
-                                                {{ icons('times') }}
+                                                <i data-feather="x"></i>
                                             </button>
                                             <button class="menu-back js-menu-back">
-                                                {{ icons('angle-left') }}
+                                                <i data-feather="chevron-left"></i>
                                             </button>
 
                                             <div class="menu-group">
@@ -267,7 +262,7 @@ Version: 1.0
                                                     <div class="menu-item menu-{{ sub_category.handle }} {% if (category.id == sub_category.id or category.parent == sub_category.id) %} active {% endif %}">
                                                         {% if sub_category.children %}
                                                             <div class="menu-head js-submenu-head">{{ sub_category.title }}
-                                                                {{ icons('angle-right') }}
+                                                                <i data-feather="chevron-right"></i>
                                                             </div>
 
                                                             <div class="submenu-body">
@@ -300,7 +295,7 @@ Version: 1.0
                     <div class="menu-login">
                         {% if user.is_logged_in %}
                             <a href="{{ site_url('account') }}" class="btn btn-primary {{ store.theme_options.button_primary_shadow }} btn-block link-account">
-                                {{ icons('user') }}
+                                <i data-feather="user"></i>
                                 <span class="user-name">{{ 'lang.storefront.layout.greetings'|t }} <strong>{{ user.name|first_word }}</strong></span>
                             </a>
                         {% else %}
@@ -314,41 +309,41 @@ Version: 1.0
                 <div class="menu-social">
                     {% if store.facebook %}
                         <a href="{{ store.facebook }}" class="link-social-facebook menu-link" target="_blank" title="{{ 'lang.storefront.layout.social.facebook'|t }}">
-                            {{ icons('facebook') }}
+                            <i data-feather="facebook"></i>
                         </a>
                     {% endif %}
                     {% if store.twitter %}
                         <a href="{{ store.twitter }}" class="link-social-twitter menu-link" target="_blank" title="{{ 'lang.storefront.layout.social.twitter'|t }}">
-                            {{ icons('twitter') }}
+                            <i data-feather="twitter"></i>
                         </a>
                     {% endif %}
                     {% if store.instagram %}
                         <a href="{{ store.instagram }}" class="link-social-instagram menu-link" target="_blank" title="{{ 'lang.storefront.layout.social.instagram'|t }}">
-                            {{ icons('instagram') }}
+                            <i data-feather="instagram"></i>
                         </a>
                     {% endif %}
                     {% if store.pinterest %}
                         <a href="{{ store.pinterest }}" class="link-social-pinterest menu-link" target="_blank" title="{{ 'lang.storefront.layout.social.pinterest'|t }}">
-                            {{ icons('pinterest-p') }}
+                            <i class="fab fa-pinterest-p"></i>
                         </a>
                     {% endif %}
                     {% if store.youtube %}
                         <a href="{{ store.youtube }}" class="link-social-youtube menu-link" target="_blank" title="{{ 'lang.storefront.layout.social.youtube'|t }}">
-                            {{ icons('youtube') }}
+                            <i class="fab fa-youtube"></i>
                         </a>
                     {% endif %}
                     {% if store.linkedin %}
                         <a href="{{ store.linkedin }}" class="link-social-linkedin menu-link" target="_blank" title="{{ 'lang.storefront.layout.social.linkedin'|t }}">
-                            {{ icons('linkedin') }}
+                            <i class="fab fa-linkedin"></i>
                         </a>
                     {% endif %}
                     {% if store.tiktok %}
                         <a href="{{ store.tiktok }}" class="link-social-tiktok menu-link" target="_blank" title="{{ 'lang.storefront.layout.social.tiktok'|t }}">
-                            {{ icons('tiktok') }}
+                            <i class="fab fa-tiktok"></i>
                         </a>
                     {% endif %}
                     <a href="{{ site_url('rss') }}" class="link-social-rss menu-link" target="_blank" title="{{ 'lang.storefront.layout.social.rss'|t }}">
-                        {{ icons('rss') }}
+                        <i data-feather="rss"></i>
                     </a>
                 </div>
 
@@ -387,37 +382,37 @@ Version: 1.0
                     <div class="footer-social social">
                         {% if store.facebook %}
                             <a href="{{ store.facebook }}" class="social-link link-social-facebook" target="_blank" title="{{ 'lang.storefront.layout.social.facebook'|t }}">
-                                {{ icons('facebook') }}
+                                <i data-feather="facebook"></i>
                             </a>
                         {% endif %}
                         {% if store.twitter %}
                             <a href="{{ store.twitter }}" class="social-link link-social-twitter" target="_blank" title="{{ 'lang.storefront.layout.social.twitter'|t }}">
-                                {{ icons('twitter') }}
+                                <i data-feather="twitter"></i>
                             </a>
                         {% endif %}
                         {% if store.instagram %}
                             <a href="{{ store.instagram }}" class="social-link link-social-instagram" target="_blank" title="{{ 'lang.storefront.layout.social.instagram'|t }}">
-                                {{ icons('instagram') }}
+                                <i data-feather="instagram"></i>
                             </a>
                         {% endif %}
                         {% if store.pinterest %}
                             <a href="{{ store.pinterest }}" class="social-link link-social-pinterest" target="_blank" title="{{ 'lang.storefront.layout.social.pinterest'|t }}">
-                                {{ icons('pinterest-p') }}
+                                <i class="fab fa-pinterest-p"></i>
                             </a>
                         {% endif %}
                         {% if store.youtube %}
                             <a href="{{ store.youtube }}" class="social-link link-social-youtube" target="_blank" title="{{ 'lang.storefront.layout.social.youtube'|t }}">
-                                {{ icons('youtube') }}
+                                <i class="fab fa-youtube"></i>
                             </a>
                         {% endif %}
                         {% if store.linkedin %}
                             <a href="{{ store.linkedin }}" class="social-link link-social-linkedin" target="_blank" title="{{ 'lang.storefront.layout.social.linkedin'|t }}">
-                                {{ icons('linkedin') }}
+                                <i class="fab fa-linkedin"></i>
                             </a>
                         {% endif %}
                         {% if store.tiktok %}
                             <a href="{{ store.tiktok }}" class="social-link link-social-tiktok" target="_blank" title="{{ 'lang.storefront.layout.social.tiktok'|t }}">
-                                {{ icons('tiktok') }}
+                                <i class="fab fa-tiktok"></i>
                             </a>
                         {% endif %}
                     </div>
@@ -578,10 +573,10 @@ Version: 1.0
                     <div class="modal-body padding">
                         <div class="text-center">
                             {% if events.wishlist.added %}
-                                {{ icons('heart', 'feather-48') }}
+                                <i data-feather="heart" class="feather-48"></i>
                                 <h2 class="margin-top">{{ 'lang.storefront.layout.events.wishlist.added'|t }}</h2>
                             {% elseif events.wishlist.removed %}
-                                {{ icons('heart', 'feather-48') }}
+                                <i data-feather="heart" class="feather-48"></i>
                                 <h2 class="margin-top">{{ 'lang.storefront.layout.events.wishlist.removed'|t }}</h2>
                             {% endif %}
                         </div>
@@ -611,31 +606,31 @@ Version: 1.0
                             {% if events.cart.stock_qty or events.cart.stock_sold_single or events.cart.no_stock %}
 
                                 {% if events.cart.stock_qty %}
-                                    {{ icons('ban', 'feather-48') }}
+                                    <i data-feather="slash" class="feather-48"></i>
                                     <h2 class="margin-top">{{ 'lang.storefront.layout.events.cart.not_enough_stock'|t }}</h2>
                                 {% endif %}
                                 {% if events.cart.stock_sold_single %}
-                                    {{ icons('ban', 'feather-48') }}
+                                    <i data-feather="slash" class="feather-48"></i>
                                     <h3 class="margin-top">{{ 'lang.storefront.layout.events.cart.stock_sold_single'|t }} <strong>{{ events.cart.stock_sold_single }}</strong></h3>
                                 {% endif %}
                                 {% if events.cart.no_stock %}
-                                    {{ icons('ban', 'feather-48') }}
+                                    <i data-feather="slash" class="feather-48"></i>
                                     <h2 class="margin-top">{{ 'lang.storefront.layout.events.cart.products_without_stock'|t }}</h2>
                                 {% endif %}
 
                             {% else %}
 
                                 {% if events.cart.added %}
-                                    {{ icons('check', 'feather-48') }}
+                                    <i data-feather="check" class="feather-48"></i>
                                     <h2 class="margin-top">{{ 'lang.storefront.layout.events.cart.added'|t }}</h2>
                                 {% elseif events.cart.error %}
-                                    {{ icons('times', 'feather-48') }}
+                                    <i data-feather="x" class="feather-48"></i>
                                     <h2 class="margin-top">{{ 'lang.storefront.layout.events.cart.error'|t }}</h2>
                                 {% elseif events.cart.updated %}
-                                    {{ icons('sync', 'feather-48') }}
+                                    <i data-feather="refresh-cw" class="feather-48"></i>
                                     <h2 class="margin-top">{{ 'lang.storefront.layout.events.cart.updated'|t }}</h2>
                                 {% elseif events.cart.session_updated_items or events.cart.session_not_updated_items or events.cart.session_updated %}
-                                    {{ icons('sync', 'feather-48') }}
+                                    <i data-feather="refresh-cw" class="feather-48"></i>
                                     <h2 class="margin-top">{{ 'lang.storefront.layout.events.cart.updated'|t }}</h2>
 
                                     {% if events.cart.session_updated_items %}
@@ -655,7 +650,7 @@ Version: 1.0
                                         </ul>
                                     {% endif %}
                                 {% elseif events.cart.deleted %}
-                                    {{ icons('trash-alt', 'feather-48') }}
+                                    <i data-feather="trash-2" class="feather-48"></i>
                                     <h2 class="margin-top">{{ 'lang.storefront.layout.events.cart.deleted'|t }}.</h2>
                                 {% endif %}
 
@@ -691,7 +686,7 @@ Version: 1.0
 
                     <div class="modal-body padding">
                         <div class="text-center">
-                            {{ icons('envelope', 'feather-48') }}
+                            <i data-feather="mail" class="feather-48"></i>
 
                             {% if events.newsletter_error %}
                                 <h2 class="margin-top">Não foi possível efectuar o registo na newsletter:</h2>
@@ -738,7 +733,7 @@ Version: 1.0
                 <div class="modal-content">
                     <div class="modal-body padding">
                         <div class="text-center">
-                            {{ icons('envelope', 'feather-48') }}
+                            <i data-feather="mail" class="feather-48"></i>
 
                             <h2 class="text-muted">{{ 'lang.storefront.layout.events.unsubscribe_title'|t }}</h2>
                             <p>{{ 'lang.storefront.layout.events.unsubscribe_text'|t }}</p>
@@ -766,11 +761,11 @@ Version: 1.0
                     <div class="modal-body padding">
                         <div class="text-center">
                             {% if events.payment_status.success is same as (true) %}
-                                {{ icons('check', 'feather-48') }}
+                                <i data-feather="check" class="feather-48"></i>
                             {% elseif events.payment_status.success is same as (false) %}
-                                {{ icons('times', 'feather-48') }}
+                                <i data-feather="x" class="feather-48"></i>
                             {% else %}
-                                {{ icons('check', 'feather-48') }}
+                                <i data-feather="check" class="feather-48"></i>
                             {% endif %}
 
                             <h2 class="margin-top">{{ events.payment_status.message }}</h2>
@@ -800,13 +795,13 @@ Version: 1.0
                     <div class="modal-body padding">
                         <div class="text-center">
                             {% if events.contact_form_success %}
-                                {{ icons('envelope', 'feather-48') }}
+                                <i data-feather="mail" class="feather-48"></i>
                                 <h2 class="margin-top">{{ 'lang.storefront.layout.events.contact_form_success.title'|t }}</h2>
                                 <p>{{ 'lang.storefront.layout.events.contact_form_success.text'|t }}</p>
                             {% endif %}
 
                             {% if events.contact_form_errors %}
-                                {{ icons('envelope', 'feather-48') }}
+                                <i data-feather="mail" class="feather-48"></i>
                                 <h2 class="margin-top">{{ 'lang.storefront.layout.events.contact_form_error'|t }}</h2>
                                 <p>{{ events.contact_form_errors }}</p>
                             {% endif %}
